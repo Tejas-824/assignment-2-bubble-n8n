@@ -1,0 +1,197 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "6660333f-7a73-4156-afa2-55fa2d8c415c",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e5eacd29-a00a-4592-83d0-f698059d512e",
+      "name": "Webhook",
+      "webhookId": "6660333f-7a73-4156-afa2-55fa2d8c415c",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "yc9Cs543i3NVFB8N",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-3-flash-preview",
+          "cachedResultName": "Gemini 3 Flash Preview",
+          "cachedResultUrl": ""
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a support representative at BookLeaf Publishing. Write a royalty summary email to the author below.\n\nRules:\n- Start with \"Hi <first name>,\". Warm, professional tone. Acknowledge them first.\n- Summarise each PUBLISHED book: copies sold, royalty earned, paid, pending.\n- Then give totals: earned, paid, pending.\n- If total pending > 0: royalties are calculated quarterly and paid within 45 days of the quarter ending; minimum payout is Rs. 1,000 (below that it rolls over). Give the next payout date: {{ $json.next_payout }}.\n- If everything is paid: thank them positively.\n- For books still in production, give a one-line status update.\n- Use ONLY the data below. Never invent numbers. Plain text, no markdown, 120-200 words.\n- End with a clear next step and \"Warm regards,\\nBookLeaf Author Support Team\".\n- Output format: first line \"SUBJECT: <subject>\", then a blank line, then the email body.\n\nAuthor data (JSON):\n{{ JSON.stringify($json.body) }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "e8ba80ea-aa5c-478c-a5c2-160af614af7c",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "5TLvprBxgSGmDAez",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tejasworld024.bubbleapps.io/version-test/api/1.1/wf/update_notification_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 66a1ff7432f771a94c05c7035bbf8fb3"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "log_id",
+              "value": "={{ $('Webhook').item.json.body.log_id }}"
+            },
+            {
+              "name": "status",
+              "value": "Success"
+            },
+            {
+              "name": "email_subject",
+              "value": "={{ $json.content.parts[0].text.split('\\n')[0].replace('SUBJECT: ','') }}"
+            },
+            {
+              "name": "email_body",
+              "value": "={{ $json.content.parts[0].text }}"
+            },
+            {
+              "name": "error_message"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        592,
+        -16
+      ],
+      "id": "36e6d81e-a036-4a86-8c2f-82f71872752a",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tejasworld024.bubbleapps.io/version-test/api/1.1/wf/update_notification_log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 66a1ff7432f771a94c05c7035bbf8fb3"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "log_id",
+              "value": "={{ $('Webhook').item.json.body.log_id }}"
+            },
+            {
+              "name": "status",
+              "value": "Failed"
+            },
+            {
+              "name": "error_message",
+              "value": "AI generation failed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        464,
+        144
+      ],
+      "id": "20885ea4-491a-4711-866b-d38443e5173c",
+      "name": "HTTP Request1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e8f7375f-2056-47d0-83a3-6a2a05ba5b05",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "98c2b0621c1c1af488735056fbab4f146df7bc4631ecf0882ee5fc050938e57f"
+  },
+  "nodeGroups": [],
+  "id": "D4RHyUZb8VJTMErR",
+  "tags": []
+}

@@ -86,3 +86,9 @@ Bubble was new to me, so I learned it while building.
 - **Backend workflows:** totals came out empty until I turned on "Ignore privacy rules" for the workflow. I also fixed the overdue check, which was marking everyone with pending money as overdue.
 - **n8n connection:** my first call returned 403 because the secret header was saved as a blank placeholder. I re-created it with a real value.
 - **Time:** the longest part was learning where each setting lives in Bubble. I learned most by breaking things, reading the logs, and fixing them step by step.
+
+## Known issue 
+
+This was my first time using Bubble, so I was learning it while building the project.
+
+One thing is not working properly: when I log in as admin, the app opens the author dashboard instead of the admin dashboard. I tried fixing the redirect after login with role conditions, but I could not get it working before the deadline. The admin dashboard page and the author detail page both work on their own. The only problem is the redirect right after login.
