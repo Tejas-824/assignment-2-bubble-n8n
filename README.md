@@ -10,11 +10,11 @@ Author: priya.sharma@email.com / Author@123 (all authors use Author@123)
 n8n workflow file: n8n-workflow.json
 
 ## 1. Database
-Data type	What it stores
+Data type -	What it stores
 Author	author_id, name, email, phone, city, joined date, linked user, and totals (total_books, total_earned, total_paid, total_pending, payout_status)
 Book	book_id, title, ISBN, genre, status, dates, MRP, copies sold, royalty earned / paid / pending, last payout date, print partner, platforms, and which Author it belongs to
 Notification Log	which author, status (Pending / Success / Failed), email subject, email body, error message, completed time
-User	Bubble’s login account, plus a role (author or admin) and a link to an Author
+User -  Bubble’s login account, plus a role (author or admin) and a link to an Author
 
 ## Why I did it this way
 
@@ -39,7 +39,7 @@ Bubble makes a Notification Log row with status Pending.
 Bubble calls the n8n webhook using the API Connector. It sends the log id, author id, author name, and a text summary of their books.
 n8n checks a secret header (x-api-key). No header, no entry, so the webhook isn’t open to anyone who finds the URL.
 n8n passes the data to Gemini and gets back an email subject and body.
-n8n then calls a Bubble backend workflow (update_notification_log) with an API token, which saves the subject and body and sets the status.
+n8n returns the subject and body in the webhook response, and Bubble saves it to the Notification Log.
 The log row flips from Pending to Success.
 
 ## Why I send the data in the webhook and don’t let n8n pull it from Bubble’s Data API
@@ -77,3 +77,7 @@ Known issue
 This was my first time using Bubble, so I was learning as I went.
 
 One thing still doesn’t work. When I log in as admin, the app opens the author dashboard instead of the admin dashboard. I tried fixing the redirect with role conditions but couldn’t get it working before the deadline. The admin dashboard and the author detail page both work fine on their own. It’s only the redirect right after login that’s broken.
+
+Not finished
+
+Bubble’s free plan blocks incoming API calls, so the callback from n8n into Bubble could not be used. I return the result in the webhook response instead.
