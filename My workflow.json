@@ -68,7 +68,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer 66a1ff7432f771a94c05c7035bbf8fb3"
+              "value": "Bearer YOUR_TOKEN"
             }
           ]
         },
@@ -116,7 +116,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer 66a1ff7432f771a94c05c7035bbf8fb3"
+              "value": "Bearer YOUR_TOKEN"
             }
           ]
         },
