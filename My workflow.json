@@ -29,10 +29,9 @@
       "parameters": {
         "modelId": {
           "__rl": true,
+          "value": "models/gemini-2.5-flash-lite",
           "mode": "list",
-          "value": "models/gemini-3-flash-preview",
-          "cachedResultName": "Gemini 3 Flash Preview",
-          "cachedResultUrl": ""
+          "cachedResultName": "Gemini 2.5 Flash-Lite"
         },
         "messages": {
           "values": [
@@ -52,6 +51,8 @@
       ],
       "id": "e8ba80ea-aa5c-478c-a5c2-160af614af7c",
       "name": "Message a model",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
       "credentials": {
         "googlePalmApi": {
           "id": "5TLvprBxgSGmDAez",
@@ -67,12 +68,12 @@
         "options": {}
       },
       "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.4,
+      "typeVersion": 1.5,
       "position": [
-        592,
+        608,
         -16
       ],
-      "id": "36e6d81e-a036-4a86-8c2f-82f71872752a",
+      "id": "05fb58a5-d875-459f-aaa1-9ab8c36a479d",
       "name": "Respond to Webhook"
     },
     {
@@ -82,16 +83,62 @@
         "options": {}
       },
       "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.4,
+      "typeVersion": 1.5,
       "position": [
         464,
-        144
+        160
       ],
-      "id": "20885ea4-491a-4711-866b-d38443e5173c",
+      "id": "bd105f1d-ed7f-489d-86ea-7588416bfd70",
       "name": "Respond to Webhook1"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "myworkspace24.app.n8n.cloud",
+            "user-agent": "Bubble",
+            "content-length": "262",
+            "accept-encoding": "gzip, br",
+            "baggage": "bubblegroup.client.version=ae709beff2e5a981a391e2995712f7f713e46026,bubblegroup.client.commit_timestamp=1793461665000,bubblegroup.http.route=workflow%2Fstart,bubblegroup.http.host=tejasworld024.bubbleapps.io,bubblegroup.workflow.appname=tejasworld024,bubblegroup.workflow.app_version=test,bubblegroup.workflow.situation=page_wf,user_agent.origin=web,bubblegroup.workflow.id=bTGkr,bubblegroup.workflow.event.type=ButtonClicked,bubblegroup.workflow.action.id=bTGlW,bubblegroup.workflow.action.type=apiconnector2-bTGkS.bTGkY",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "44.225.174.81",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "US",
+            "cf-ray": "a53bfc1f08960055-PDX",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "traceparent": "00-7c478a9091ea54dbbefe0ca68b5bcd48-f66bb5ce0add1a43-01",
+            "x-api-key": "bk-secret-91XyZT",
+            "x-bubble-depth": "1",
+            "x-forwarded-for": "44.225.174.81, 172.68.174.162",
+            "x-forwarded-host": "myworkspace24.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-13-69889bc54b-8wq86",
+            "x-is-trusted": "yes",
+            "x-real-ip": "44.225.174.81"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "log_id": "1793547488363x205583979498962940",
+            "author_id": "AUTH003",
+            "author_name": "Ananya Reddy",
+            "next_payout": "14 November 2026",
+            "books": "Title: Between Two Temples, Sold: 67, Earned: 2546, Paid: 0, Pending: 2546,  Status: Published & Live"
+          },
+          "webhookUrl": "https://myworkspace24.app.n8n.cloud/webhook/6660333f-7a73-4156-afa2-55fa2d8c415c",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
   "connections": {
     "Webhook": {
       "main": [
@@ -128,9 +175,10 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "e8f7375f-2056-47d0-83a3-6a2a05ba5b05",
+  "versionId": "1486e697-bc15-4313-b72a-323079a05da2",
   "meta": {
-    "templateCredsSetupCompleted": true
+    "templateCredsSetupCompleted": true,
+    "instanceId": "98c2b0621c1c1af488735056fbab4f146df7bc4631ecf0882ee5fc050938e57f"
   },
   "nodeGroups": [],
   "id": "D4RHyUZb8VJTMErR",

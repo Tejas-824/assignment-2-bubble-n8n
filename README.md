@@ -1,77 +1,58 @@
-## Author Royalty Dashboard (Bubble + n8n)
+# Author Royalty Dashboard (Bubble + n8n)
 
-This is a royalty dashboard I built in Bubble. The admin clicks a button, n8n gets Gemini to write a royalty summary for that author, and the result goes back into Bubble and gets saved in a Notification Log.
+A royalty dashboard I built in Bubble. The admin clicks a button, n8n asks Gemini to write a royalty summary for that author, and the result is saved in a Notification Log in Bubble.
 
 ## Links
-
-App: https://tejasworld024.bubbleapps.io/version-test/login (dev version, free plan)
-Admin: admin@bookleaf.com / Admin@123
-Author: priya.sharma@email.com / Author@123 (all authors use Author@123)
-n8n workflow file: n8n-workflow.json
+- App: https://tejasworld024.bubbleapps.io/version-test/login (dev version, free plan)
+- Admin: admin@bookleaf.com / Admin@123
+- Author: priya.sharma@email.com / Author@123 (all authors use Author@123)
+- n8n workflow file: n8n-workflow.json
 
 ## 1. Database
-Data type -	What it stores
-Author	author_id, name, email, phone, city, joined date, linked user, and totals (total_books, total_earned, total_paid, total_pending, payout_status)
-Book	book_id, title, ISBN, genre, status, dates, MRP, copies sold, royalty earned / paid / pending, last payout date, print partner, platforms, and which Author it belongs to
-Notification Log	which author, status (Pending / Success / Failed), email subject, email body, error message, completed time
-User -  Bubble’s login account, plus a role (author or admin) and a link to an Author
+- **Author**: id, name, email, phone, city, joined date, linked user, and totals (books, earned, paid, pending, payout status)
+- **Book**: details, dates, MRP, copies sold, royalty earned / paid / pending, last payout date, platforms, and the Author it belongs to
+- **Notification Log**: author, status, email subject, email body, error message, completed time
+- **User**: Bubble login, plus a role (author or admin) and a link to an Author
 
-## Why I did it this way
+Why: one author has many books, so each Book points to its Author. The Notification Log is separate so every attempt has its own status. I stored the totals on Author so the admin list can filter them without recalculating.
 
-One author has lots of books, so every Book points to its Author. It’s basically a foreign key.
-The Notification Log is its own thing so each email attempt gets its own status.
-I put the totals on Author so the admin list can show and filter them without recalculating each time.
-A role on User was the easiest way to split admin and author access.
-I kept author_id_text on Book as a plain text copy of the author ID. It helps me check the data and write privacy rules.
-Books still in production have no MRP or dates. I left them empty on purpose.
-## 2. Author and admin screens
-Author: when an author logs in they only see their own books. Each book shows its details, royalty numbers and a colored badge:
-Green: fully paid
-Red: money pending and last payout was over 90 days ago, or never paid on a book older than 90 days
-Yellow: money pending but still in the normal cycle
-Grey: still in production
-Earned, paid and pending totals sit at the top.
-Admin: sees all authors with total books, earned and pending. You can search by name and filter by city and payout status. Click an author and you get a detail page with all their books and numbers.
-Privacy rules: authors only see their own Books and their own Author record. Admin sees everything. Only admin can see the Notification Log. I tested it by logging in as different people. Priya sees 2 books, Sneha sees 3, admin sees all 18.
-## 3. How Bubble and n8n talk to each other
-Admin opens an author’s page and clicks Generate & Send Royalty Summary.
-Bubble makes a Notification Log row with status Pending.
-Bubble calls the n8n webhook using the API Connector. It sends the log id, author id, author name, and a text summary of their books.
-n8n checks a secret header (x-api-key). No header, no entry, so the webhook isn’t open to anyone who finds the URL.
-n8n passes the data to Gemini and gets back an email subject and body.
-n8n returns the subject and body in the webhook response, and Bubble saves it to the Notification Log.
-The log row flips from Pending to Success.
+## 2. Screens
+- **Author**: sees only their own books, with details, royalty numbers and a badge: green (fully paid), yellow (pending, normal cycle), red (pending and last payout over 90 days ago, or never paid on a book older than 90 days), grey (still in production). Total earned, paid and pending are at the top.
+- **Admin**: sees all authors with total books, earned and pending. Search by name, filter by city and payout status. "View details" opens the author's page with the same data and the Generate & Send button.
+- **Privacy rules**: authors see only their own Author record and Books. Admin sees everything.
 
-## Why I send the data in the webhook and don’t let n8n pull it from Bubble’s Data API
+## 3. How Bubble and n8n work together
+1. Admin clicks Generate & Send Royalty Summary.
+2. Bubble creates a Notification Log row with status pending.
+3. Bubble calls the n8n webhook with the log id, author id, name, next payout date and a text summary of the books.
+4. n8n checks a secret header (x-api-key). Without it, the call is rejected.
+5. n8n sends the data to Gemini and gets back a subject and body.
+6. n8n replies to Bubble with status, subject and body.
+7. Bubble saves them in the log, sets the status to Success and adds the time.
 
-It’s simpler. n8n doesn’t need extra access to Bubble’s data.
-It’s faster and there’s less that can break.
-Bubble already knows which author and books to send.
-The downside: if the data changes after the click, n8n won’t see it. That’s fine here.
-## 4. Prompt strategy
-I told Gemini to act like a BookLeaf support person, friendly but professional.
-It starts with a greeting using the author’s name, then a short summary of each published book, then total earned, paid and pending.
-If there’s money pending, it explains the quarterly payout, the 45-day window and the Rs. 1,000 minimum.
-If everything is paid, it just says thanks.
-Books in production get a one-line status update.
-It can only use the data I send and can’t invent numbers. The output starts with “SUBJECT:” on the first line, then the body.
-I don’t let the AI work out dates. I send the next payout date as plain text so it can’t mess it up. (check: right now it’s a fixed date. Say so if you didn’t make it dynamic.)
+**Why I send the data in the webhook:** it is simpler and faster, n8n needs no access to Bubble's Data API, and Bubble already knows which author to send. The downside is that n8n doesn't see changes made after the click, which is fine here.
+
+## 4. Prompt
+Gemini acts as a BookLeaf support person: warm and professional. It greets the author by name, summarises each published book, then gives total earned, paid and pending. If money is pending, it explains the quarterly payout, the 45-day window and the Rs. 1,000 minimum, with the next payout date. If everything is paid, it says thanks. Books in production get a one-line update. It can only use the data I send and must not make up numbers.
+
 ## 5. Error handling
-Security: the n8n webhook needs a secret header, and the call back into Bubble uses a Bearer API token.
-Double clicks: the button only makes a new log if that author doesn’t already have a Pending one. This stops duplicate emails. (check)
-If the AI fails: n8n sends a Failed status back to Bubble with an error message, so the failure gets saved and isn’t silent. (check: only keep this if you actually built the error branch.)
-If n8n never answers: the log just stays Pending, and the admin can see it in the Notification Log. (check)
+- **Security**: the webhook needs a secret header.
+- **Double click**: Bubble only creates a log if none exists for that author, so a second click doesn't create a duplicate.
+- **AI fails**: Message a model retries 3 times. If it still fails, an error branch in n8n replies "Failed". Bubble then sets the log to Failed with an error message.
+- **n8n errors**: I turned on "Include errors in response" in the API Connector, so Bubble keeps going and marks the log Failed.
+- **n8n never answers**: the log stays pending, so the admin can see it in the Notification Log.
 
-## 6. Challenges and what I learned
+## 6. What I could not do on the free plans
+- **Callback to Bubble's API (assignment step 5)**: Bubble's API needs a paid plan. n8n got a 401 "upgrade your Bubble subscription". So instead of n8n updating the log, n8n replies to the webhook call and Bubble updates the log itself, with status and time.
+- **CSV import**: needs a paid plan, so I added the data by hand and linked books to authors with a backend workflow.
+- **Sending a real email**: not done (it was a bonus). The email is saved in the log.
+- **Next payout date**: typed as a fixed date, not calculated.
+- **Gemini free limits**: too many requests in a minute gives an error, so I added retry.
+- **App is on the dev version**: "Upgrade to deploy" needs a paid plan.
 
-Bubble was new to me, so I was learning it while building.
+## 7. Problems I ran into
+- **Admin opened the author page**: the login always went to author_dashboard. I added a role condition to each redirect. It still failed because the saved role values had a hidden line break ("admin" + new line), so no comparison matched. I retyped the roles.
+- **Admin saw no authors**: the "Admin sees all" privacy rule used the same role check, so it failed for the same reason.
+- **Totals were empty**: the recalc workflow had only run for one author. I ran it for all authors once with a temporary button.
+- **Status check**: n8n returns "Success" but Bubble was checking "success". Case matters.
 
-Data import: CSV upload needs a paid plan. I typed the data in by hand, then linked books to authors with a backend workflow.
-Login redirect: conditions like “Current User’s role is author” didn’t work right after login. I moved the role check into each page’s page-load workflow.
-Privacy rules: my first Book rule returned 0 books, because Bubble doesn’t allow searching with a rule based on “This Book’s author’s user”. I switched it to compare author IDs.
-Backend workflows: totals came out empty until I turned on “Ignore privacy rules” for the workflow. I also fixed the overdue check, which was marking everyone with pending money as overdue.
-n8n connection: my first call got a 403 because the secret header was saved as a blank placeholder. I re-created it with a real value.
-Time: the longest part was figuring out where each setting lives in Bubble. I mostly learned by breaking things, reading the logs, and fixing them one by one.
-Known issue
-
-This was my first time using Bubble, so I was learning as I went.
