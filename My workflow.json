@@ -111,7 +111,7 @@
             "cf-worker": "n8n.cloud",
             "content-type": "application/json",
             "traceparent": "00-7c478a9091ea54dbbefe0ca68b5bcd48-f66bb5ce0add1a43-01",
-            "x-api-key": "bk-secret-91XyZT",
+            "x-api-key": "Your cred",
             "x-bubble-depth": "1",
             "x-forwarded-for": "44.225.174.81, 172.68.174.162",
             "x-forwarded-host": "myworkspace24.app.n8n.cloud",
