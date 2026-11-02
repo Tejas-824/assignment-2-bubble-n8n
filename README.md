@@ -75,9 +75,3 @@ Time: the longest part was figuring out where each setting lives in Bubble. I mo
 Known issue
 
 This was my first time using Bubble, so I was learning as I went.
-
-One thing still doesn’t work. When I log in as admin, the app opens the author dashboard instead of the admin dashboard. I tried fixing the redirect with role conditions but couldn’t get it working before the deadline. The admin dashboard and the author detail page both work fine on their own. It’s only the redirect right after login that’s broken.
-
-Not finished
-
-Bubble’s free plan blocks incoming API calls, so the callback from n8n into Bubble could not be used. I return the result in the webhook response instead.
